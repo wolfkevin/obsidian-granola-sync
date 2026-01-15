@@ -18,12 +18,20 @@ Process meeting transcripts from Granola to extract action items and update proj
 
 ### Workflow
 
-1. **Find unprocessed transcripts** in `4-archive/transcripts/`
+1. **Sync new transcripts from Granola:**
+   ```bash
+   cd ~/repos/obsidian-granola-sync && source venv/bin/activate && python granola_sync.py
+   ```
+   - This pulls any new meetings from Granola's local cache
+   - Creates transcript files in `4-archive/transcripts/`
+   - Adds meeting entries to daily files
+
+2. **Find unprocessed transcripts** in `4-archive/transcripts/`
    - Look for files with `processed: false` in frontmatter
    - Default: process today's transcripts only
    - With `all`: process all unprocessed
 
-2. **For each transcript:**
+3. **For each transcript:**
    a. Read the transcript content
    b. Analyze to extract:
       - **Action items** (tasks someone needs to do)
@@ -41,7 +49,7 @@ Process meeting transcripts from Granola to extract action items and update proj
    e. **Mark transcript as processed:**
       - Change frontmatter `processed: false` → `processed: true`
 
-3. **Report what was done:**
+4. **Report what was done:**
    - List processed transcripts
    - Summarize action items added
    - Note any project files updated
