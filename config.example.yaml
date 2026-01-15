@@ -1,0 +1,23 @@
+# Obsidian Granola Sync Configuration
+# Copy this file to config.yaml and update paths for your system
+
+# Path to Granola's local cache file
+granola_cache: ~/Library/Application Support/Granola/cache-v3.json
+
+# Path to your Obsidian vault root
+obsidian_vault: ~/Obsidian Vault
+
+# Relative paths within the vault
+transcripts_folder: 4-archive/transcripts
+daily_folder: 5-reflections/daily
+projects_index: 1-projects/index.md
+
+# Processing settings
+auto_process_after_hours: 48
+model: claude-sonnet-4-20250514
+
+# Daily file template sections (used when creating new daily files)
+daily_template:
+  work_section: "## Work"
+  meetings_section: "## Meetings"
+  schedule_section: "## Schedule"
