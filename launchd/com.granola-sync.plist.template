@@ -8,7 +8,8 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/kevinwolf/repos/obsidian-granola-sync/run_sync.sh</string>
+        <!-- UPDATE: Replace $HOME with your actual home directory path -->
+        <string>$HOME/repos/obsidian-granola-sync/run_sync.sh</string>
     </array>
 
     <key>StartCalendarInterval</key>
@@ -20,10 +21,11 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/kevinwolf/Library/Logs/granola-sync-launchd.log</string>
+    <!-- UPDATE: Replace $HOME with your actual home directory path -->
+    <string>$HOME/Library/Logs/granola-sync.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/kevinwolf/Library/Logs/granola-sync-launchd.log</string>
+    <string>$HOME/Library/Logs/granola-sync.log</string>
 
     <key>EnvironmentVariables</key>
     <dict>

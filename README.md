@@ -29,10 +29,12 @@ git clone https://github.com/wolfkevin/obsidian-granola-sync.git
 cd obsidian-granola-sync
 ```
 
-### 2. Install dependencies
+### 2. Create virtual environment and install dependencies
 
 ```bash
-pip3 install -r requirements.txt
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### 3. Configure paths
@@ -52,7 +54,15 @@ echo "ANTHROPIC_API_KEY=sk-ant-api03-xxxxx" > ~/.config/granola-sync/.env
 ### 5. Install launchd job (optional, for daily automation)
 
 ```bash
-cp launchd/com.granola-sync.plist ~/Library/LaunchAgents/
+# Run the setup script (automatically configures paths)
+./setup_launchd.sh
+```
+
+Or manually:
+```bash
+cp launchd/com.granola-sync.plist.template ~/Library/LaunchAgents/com.granola-sync.plist
+# Edit the file to replace $HOME with your actual home directory
+nano ~/Library/LaunchAgents/com.granola-sync.plist
 launchctl load ~/Library/LaunchAgents/com.granola-sync.plist
 ```
 
