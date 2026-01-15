@@ -58,6 +58,21 @@ launchctl load ~/Library/LaunchAgents/com.granola-sync.plist
 
 ## Usage
 
+### Claude Code Skill (Recommended)
+
+Add the `/process-transcripts` skill to your Obsidian vault's `CLAUDE.md`. See [SKILL.md](SKILL.md) for instructions.
+
+This lets you process transcripts directly in Claude Code:
+```
+/process-transcripts        # Process today's transcripts
+/process-transcripts all    # Process all unprocessed
+```
+
+**Benefits over the Python script:**
+- Uses your existing Claude Code session (no separate API costs)
+- Interactive - you can guide the processing
+- No API key needed beyond Claude Code
+
 ### Manual sync
 
 ```bash
