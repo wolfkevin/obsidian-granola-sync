@@ -89,7 +89,18 @@ def get_transcript_text(entries: list) -> str:
     if not entries:
         return ""
 
-    texts = [e.get("text", "") for e in entries if e.get("text")]
+    texts = []
+    for e in entries:
+        text = e.get("text", "")
+        # Handle case where text might be a dict or other type
+        if isinstance(text, str) and text:
+            texts.append(text)
+        elif isinstance(text, dict):
+            # Try to extract text from dict if possible
+            texts.append(str(text.get("content", text.get("text", ""))))
+
+    if not texts:
+        return ""
 
     # Group into paragraphs (roughly every 5-10 sentences or by speaker change)
     paragraphs = []
@@ -154,10 +165,23 @@ def get_meeting_date(entries: list, doc: dict) -> datetime:
 
 def get_attendees(doc: dict) -> list:
     """Extract attendees from document."""
-    people = doc.get("people", [])
-    if isinstance(people, list):
-        # Extract emails or names
-        attendees = []
+    people = doc.get("people", {})
+    attendees = []
+
+    # Handle different structures of the people field
+    if isinstance(people, dict):
+        # New structure: people is a dict with 'attendees' key
+        attendees_list = people.get("attendees", [])
+        if isinstance(attendees_list, list):
+            for p in attendees_list:
+                if isinstance(p, dict):
+                    email = p.get("email") or p.get("name", "")
+                    if email:
+                        attendees.append(email)
+                elif isinstance(p, str):
+                    attendees.append(p)
+    elif isinstance(people, list):
+        # Old structure: people is a list directly
         for p in people:
             if isinstance(p, dict):
                 email = p.get("email") or p.get("name", "")
@@ -165,8 +189,8 @@ def get_attendees(doc: dict) -> list:
                     attendees.append(email)
             elif isinstance(p, str):
                 attendees.append(p)
-        return attendees
-    return []
+
+    return attendees
 
 
 def generate_transcript_file(
@@ -205,8 +229,20 @@ def generate_transcript_file(
             logger.debug(f"Skipping existing transcript: {file_path.name}")
             return file_path, False
 
-    # Get notes (Granola's AI summary)
-    notes = doc.get("notes_markdown") or doc.get("notes_plain") or doc.get("notes", "")
+    # Get notes (Granola's AI summary) - must be a string
+    notes_markdown = doc.get("notes_markdown")
+    notes_plain = doc.get("notes_plain")
+    notes_raw = doc.get("notes")
+
+    # Prioritize markdown > plain > raw, but only if it's a string
+    if isinstance(notes_markdown, str) and notes_markdown:
+        notes = notes_markdown
+    elif isinstance(notes_plain, str) and notes_plain:
+        notes = notes_plain
+    elif isinstance(notes_raw, str) and notes_raw:
+        notes = notes_raw
+    else:
+        notes = ""
 
     # Calculate metadata
     duration = calculate_duration(entries)
