@@ -16,17 +16,9 @@ cp config.example.yaml config.yaml
 # Edit config.yaml with your paths
 ```
 
-### Commands
+### Usage
 
-Once installed, use these commands in Claude Code:
-
-| Command | Description |
-|---------|-------------|
-| `/granola:sync` | Sync new transcripts from Granola to Obsidian |
-| `/granola:list` | List unprocessed meeting transcripts |
-| `/granola:status` | Check Granola cache status |
-
-Or just ask naturally: *"Sync my Granola transcripts"*
+Once installed, run `/granola:sync` or just ask *"Sync my Granola transcripts"*
 
 ---
 
