@@ -1,5 +1,6 @@
 ---
-description: Sync new Granola meeting transcripts to Obsidian
+name: sync
+description: Sync Granola meeting transcripts to Obsidian
 ---
 
 Use the `sync_transcripts` MCP tool to sync any new meeting transcripts from Granola's local cache to the configured Obsidian vault.
