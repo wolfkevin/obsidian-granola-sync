@@ -4,13 +4,14 @@ Automatically sync meeting transcripts from [Granola](https://granola.ai) to you
 
 ## 🚀 Claude Code Plugin (Recommended)
 
-Install directly from the Claude Code marketplace:
+Install in Claude Code:
 
-```bash
-claude plugin add wolfkevin/obsidian-granola-sync
+```
+/plugin marketplace add wolfkevin/obsidian-granola-sync
+/plugin install granola@granola-obsidian
 ```
 
-Then configure your Obsidian vault path:
+Then restart Claude Code and configure your Obsidian vault path:
 ```bash
 cp config.example.yaml config.yaml
 # Edit config.yaml with your paths
