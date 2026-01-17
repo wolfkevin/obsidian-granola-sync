@@ -1,0 +1,13 @@
+{
+  "name": "granola-obsidian",
+  "owner": {
+    "name": "Kevin Wolf"
+  },
+  "plugins": [
+    {
+      "name": "granola",
+      "source": ".",
+      "description": "Sync Granola meeting transcripts to your Obsidian vault"
+    }
+  ]
+}
