@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "granola",
-      "source": ".",
+      "source": "./",
       "description": "Sync Granola meeting transcripts to your Obsidian vault"
     }
   ]
