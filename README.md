@@ -22,9 +22,9 @@ Once installed, use these commands in Claude Code:
 
 | Command | Description |
 |---------|-------------|
-| `/granola-sync:sync` | Sync new transcripts from Granola to Obsidian |
-| `/granola-sync:list` | List unprocessed meeting transcripts |
-| `/granola-sync:status` | Check Granola cache status |
+| `/granola:sync` | Sync new transcripts from Granola to Obsidian |
+| `/granola:list` | List unprocessed meeting transcripts |
+| `/granola:status` | Check Granola cache status |
 
 Or just ask naturally: *"Sync my Granola transcripts"*
 
