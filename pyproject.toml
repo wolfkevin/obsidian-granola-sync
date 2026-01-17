@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "granola-obsidian-sync"
+version = "1.0.0"
+description = "MCP server for syncing Granola meeting transcripts to Obsidian"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Kevin Wolf", email = "kevin@example.com"}
+]
+keywords = ["mcp", "granola", "obsidian", "meetings", "transcripts", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "anthropic>=0.18.0",
+    "python-dotenv>=1.0.0",
+    "PyYAML>=6.0",
+    "mcp>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/wolfkevin/obsidian-granola-sync"
+Repository = "https://github.com/wolfkevin/obsidian-granola-sync"
+Issues = "https://github.com/wolfkevin/obsidian-granola-sync/issues"
+
+[project.scripts]
+granola-sync = "granola_sync:main"
+granola-process = "process_transcripts:main"
+
+[tool.setuptools]
+py-modules = ["granola_sync", "process_transcripts", "mcp_server"]

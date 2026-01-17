@@ -2,6 +2,66 @@
 
 Automatically sync meeting transcripts from [Granola](https://granola.ai) to your Obsidian vault.
 
+## 🚀 MCP Server (Recommended)
+
+This tool is now available as an **MCP (Model Context Protocol) server**, allowing Claude Desktop or Claude Code to directly sync and manage your Granola transcripts!
+
+### Quick Start with MCP
+
+1. **Install the package:**
+   ```bash
+   pip install git+https://github.com/wolfkevin/obsidian-granola-sync.git
+   ```
+
+2. **Configure your paths:**
+   ```bash
+   cp config.example.yaml config.yaml
+   # Edit config.yaml with your Obsidian vault path
+   ```
+
+3. **Add to Claude Desktop config:**
+
+   Edit your Claude Desktop config file:
+   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+   Add this MCP server:
+   ```json
+   {
+     "mcpServers": {
+       "granola-sync": {
+         "command": "python",
+         "args": ["-m", "mcp_server"],
+         "cwd": "/path/to/obsidian-granola-sync"
+       }
+     }
+   }
+   ```
+
+4. **Restart Claude Desktop** and start using it!
+
+📖 **[Full MCP Setup Guide](MCP_SETUP.md)** - Detailed installation and troubleshooting instructions
+
+### Available MCP Tools
+
+Once configured, Claude can use these tools:
+
+- **`sync_transcripts`** - Sync new transcripts from Granola to Obsidian
+- **`list_unprocessed_transcripts`** - List transcripts that need processing
+- **`get_transcript`** - Get the full content of a specific transcript
+- **`get_granola_cache_info`** - Check Granola cache status
+
+### Example Usage
+
+Just ask Claude:
+- "Sync my new Granola transcripts to Obsidian"
+- "Show me my unprocessed meeting transcripts"
+- "Get the transcript from the Team Standup meeting"
+
+> **Note:** The traditional Python scripts (`granola_sync.py` and `process_transcripts.py`) are still available if you prefer direct command-line usage or scheduled automation via launchd.
+
+---
+
 ## Features
 
 - **Export transcripts** from Granola's local cache to Obsidian markdown files

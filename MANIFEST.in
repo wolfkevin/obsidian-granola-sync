@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include MCP_SETUP.md
+include SKILL.md
+include config.example.yaml
+include requirements.txt
+include .env.example
+recursive-include launchd *
