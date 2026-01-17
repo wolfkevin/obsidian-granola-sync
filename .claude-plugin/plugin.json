@@ -1,0 +1,11 @@
+{
+  "name": "granola-sync",
+  "description": "Sync Granola meeting transcripts to your Obsidian vault. Automatically exports transcripts, adds meeting summaries to daily notes, and helps you process recordings.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kevin Wolf",
+    "url": "https://github.com/wolfkevin"
+  },
+  "repository": "https://github.com/wolfkevin/obsidian-granola-sync",
+  "keywords": ["granola", "obsidian", "meetings", "transcripts", "notes", "productivity"]
+}

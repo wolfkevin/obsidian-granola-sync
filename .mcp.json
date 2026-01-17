@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "granola-sync": {
+      "command": "python3",
+      "args": ["mcp_server.py"],
+      "description": "Sync Granola meeting transcripts to Obsidian"
+    }
+  }
+}
