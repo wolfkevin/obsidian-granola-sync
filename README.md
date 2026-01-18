@@ -268,6 +268,27 @@ The `projects_index` file should contain keywords for routing:
 **Keywords:** MMM, marketing mix, ROAS, budget optimization
 ```
 
+## Development
+
+### Running Tests
+
+```bash
+# Install test dependencies
+pip install -e ".[test]"
+
+# Run tests
+pytest
+
+# Run with verbose output
+pytest -v
+```
+
+Tests cover:
+- Skill file format validation
+- MCP server tool definitions
+- Tool execution with mocked data
+- Sync functionality
+
 ## License
 
 MIT
