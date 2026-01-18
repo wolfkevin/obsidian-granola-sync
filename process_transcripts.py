@@ -9,6 +9,7 @@ Analyzes transcripts to:
 """
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -139,7 +140,6 @@ Return ONLY valid JSON, no markdown formatting or explanation."""
         elif "```" in response_text:
             response_text = response_text.split("```")[1].split("```")[0]
 
-        import json
         return json.loads(response_text)
 
     except Exception as e:

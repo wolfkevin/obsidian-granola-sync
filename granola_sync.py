@@ -8,6 +8,7 @@ Adds meeting summaries to daily reflection files.
 
 import json
 import re
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -414,7 +415,7 @@ def sync_transcripts(config: dict) -> dict:
                 # Add to daily reflections
                 meeting_dt = get_meeting_date(entries, doc)
                 title = doc.get("title", "Untitled Meeting")
-                notes = doc.get("notes_markdown") or doc.get("notes_plain") or ""
+                notes = get_notes_text(doc)
 
                 if add_meeting_to_daily(meeting_dt, title, notes, file_path, config):
                     stats["daily_entries_added"] += 1
