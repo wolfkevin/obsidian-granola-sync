@@ -9,46 +9,24 @@ Analyzes transcripts to:
 """
 
 import argparse
-import logging
 import os
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
 
-import yaml
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
-# Configure logging
-LOG_DIR = Path.home() / "Library" / "Logs"
-LOG_FILE = LOG_DIR / "granola-sync.log"
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+from utils import (
+    setup_logging,
+    load_config,
+    parse_frontmatter,
+    format_frontmatter,
+    get_unprocessed_transcripts,
 )
-logger = logging.getLogger(__name__)
 
-
-def load_config() -> dict:
-    """Load configuration from config.yaml."""
-    config_path = Path(__file__).parent / "config.yaml"
-    if not config_path.exists():
-        logger.error(f"Config file not found: {config_path}")
-        sys.exit(1)
-
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
-
-    config["granola_cache"] = Path(config["granola_cache"]).expanduser()
-    config["obsidian_vault"] = Path(config["obsidian_vault"]).expanduser()
-
-    return config
+logger = setup_logging(__name__)
 
 
 def load_api_key() -> str:
@@ -79,54 +57,14 @@ def load_projects_index(config: dict) -> str:
     return ""
 
 
-def parse_frontmatter(content: str) -> tuple[dict, str]:
-    """Parse YAML frontmatter from markdown content."""
-    if not content.startswith("---"):
-        return {}, content
-
-    parts = content.split("---", 2)
-    if len(parts) < 3:
-        return {}, content
-
-    try:
-        frontmatter = yaml.safe_load(parts[1])
-        body = parts[2].lstrip()
-        return frontmatter or {}, body
-    except yaml.YAMLError:
-        return {}, content
-
-
 def update_frontmatter(content: str, updates: dict) -> str:
     """Update frontmatter values in markdown content."""
-    if not content.startswith("---"):
+    frontmatter, body = parse_frontmatter(content)
+    if not frontmatter and not content.startswith("---"):
         return content
 
-    parts = content.split("---", 2)
-    if len(parts) < 3:
-        return content
-
-    try:
-        frontmatter = yaml.safe_load(parts[1]) or {}
-        frontmatter.update(updates)
-
-        # Rebuild frontmatter
-        fm_lines = []
-        for key, value in frontmatter.items():
-            if key == "attendees" and isinstance(value, list):
-                fm_lines.append("attendees:")
-                for att in value:
-                    fm_lines.append(f"  - {att}")
-            elif isinstance(value, bool):
-                fm_lines.append(f"{key}: {str(value).lower()}")
-            elif isinstance(value, str) and (":" in value or '"' in value):
-                fm_lines.append(f'{key}: "{value}"')
-            else:
-                fm_lines.append(f"{key}: {value}")
-
-        return "---\n" + "\n".join(fm_lines) + "\n---" + parts[2]
-
-    except yaml.YAMLError:
-        return content
+    frontmatter.update(updates)
+    return format_frontmatter(frontmatter) + "\n" + body
 
 
 def extract_transcript_section(content: str) -> str:
@@ -394,39 +332,6 @@ def process_transcript(transcript_path: Path, config: dict, client: Anthropic) -
     logger.info(f"Marked as processed: {transcript_path.name}")
 
     return True
-
-
-def get_unprocessed_transcripts(config: dict, older_than_hours: int = 0) -> list[Path]:
-    """Find unprocessed transcript files."""
-    from datetime import timedelta
-
-    transcripts_dir = config["obsidian_vault"] / config["transcripts_folder"]
-
-    if not transcripts_dir.exists():
-        return []
-
-    cutoff = datetime.now() - timedelta(hours=older_than_hours) if older_than_hours > 0 else None
-    unprocessed = []
-
-    for file_path in transcripts_dir.glob("*.md"):
-        content = file_path.read_text()
-
-        if "processed: false" not in content:
-            continue
-
-        if cutoff:
-            date_match = re.search(r"date: (\d{4}-\d{2}-\d{2})", content)
-            if date_match:
-                try:
-                    file_date = datetime.strptime(date_match.group(1), "%Y-%m-%d")
-                    if file_date >= cutoff:
-                        continue
-                except ValueError:
-                    pass
-
-        unprocessed.append(file_path)
-
-    return sorted(unprocessed)
 
 
 def main():

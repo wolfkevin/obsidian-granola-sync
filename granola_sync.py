@@ -7,47 +7,20 @@ Adds meeting summaries to daily reflection files.
 """
 
 import json
-import logging
-import os
 import re
-import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
-import yaml
-
-# Configure logging
-LOG_DIR = Path.home() / "Library" / "Logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOG_DIR / "granola-sync.log"
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler(sys.stdout)
-    ]
+from utils import (
+    setup_logging,
+    load_config,
+    format_frontmatter,
+    get_unprocessed_transcripts,
+    parse_iso_timestamp,
+    get_notes_text,
 )
-logger = logging.getLogger(__name__)
 
-
-def load_config() -> dict:
-    """Load configuration from config.yaml."""
-    config_path = Path(__file__).parent / "config.yaml"
-    if not config_path.exists():
-        logger.error(f"Config file not found: {config_path}")
-        logger.error("Copy config.example.yaml to config.yaml and update paths")
-        sys.exit(1)
-
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
-
-    # Expand ~ in paths
-    config["granola_cache"] = Path(config["granola_cache"]).expanduser()
-    config["obsidian_vault"] = Path(config["obsidian_vault"]).expanduser()
-
-    return config
+logger = setup_logging(__name__)
 
 
 def load_granola_cache(cache_path: Path) -> dict:
@@ -125,40 +98,27 @@ def calculate_duration(entries: list) -> int:
     if not entries or len(entries) < 2:
         return 0
 
-    try:
-        first = entries[0].get("start_timestamp", "")
-        last = entries[-1].get("end_timestamp", "")
+    start = parse_iso_timestamp(entries[0].get("start_timestamp", ""))
+    end = parse_iso_timestamp(entries[-1].get("end_timestamp", ""))
 
-        if not first or not last:
-            return 0
-
-        # Parse ISO timestamps
-        start = datetime.fromisoformat(first.replace("Z", "+00:00"))
-        end = datetime.fromisoformat(last.replace("Z", "+00:00"))
-
-        return int((end - start).total_seconds() / 60)
-    except (ValueError, TypeError):
+    if not start or not end:
         return 0
+
+    return int((end - start).total_seconds() / 60)
 
 
 def get_meeting_date(entries: list, doc: dict) -> datetime:
     """Extract meeting date from transcript or document."""
     # Try transcript timestamp first
     if entries:
-        first_ts = entries[0].get("start_timestamp", "")
-        if first_ts:
-            try:
-                return datetime.fromisoformat(first_ts.replace("Z", "+00:00"))
-            except ValueError:
-                pass
+        dt = parse_iso_timestamp(entries[0].get("start_timestamp", ""))
+        if dt:
+            return dt
 
     # Fall back to document created_at
-    created = doc.get("created_at", "")
-    if created:
-        try:
-            return datetime.fromisoformat(created.replace("Z", "+00:00"))
-        except ValueError:
-            pass
+    dt = parse_iso_timestamp(doc.get("created_at", ""))
+    if dt:
+        return dt
 
     return datetime.now()
 
@@ -229,20 +189,8 @@ def generate_transcript_file(
             logger.debug(f"Skipping existing transcript: {file_path.name}")
             return file_path, False
 
-    # Get notes (Granola's AI summary) - must be a string
-    notes_markdown = doc.get("notes_markdown")
-    notes_plain = doc.get("notes_plain")
-    notes_raw = doc.get("notes")
-
-    # Prioritize markdown > plain > raw, but only if it's a string
-    if isinstance(notes_markdown, str) and notes_markdown:
-        notes = notes_markdown
-    elif isinstance(notes_plain, str) and notes_plain:
-        notes = notes_plain
-    elif isinstance(notes_raw, str) and notes_raw:
-        notes = notes_raw
-    else:
-        notes = ""
+    # Get notes (Granola's AI summary)
+    notes = get_notes_text(doc)
 
     # Calculate metadata
     duration = calculate_duration(entries)
@@ -261,21 +209,7 @@ def generate_transcript_file(
     if attendees:
         frontmatter_data["attendees"] = attendees
 
-    # Format frontmatter as YAML
-    frontmatter_lines = ["---"]
-    for key, value in frontmatter_data.items():
-        if key == "attendees":
-            frontmatter_lines.append("attendees:")
-            for att in value:
-                frontmatter_lines.append(f"  - {att}")
-        elif isinstance(value, bool):
-            frontmatter_lines.append(f"{key}: {str(value).lower()}")
-        elif isinstance(value, str) and (":" in value or '"' in value):
-            frontmatter_lines.append(f'{key}: "{value}"')
-        else:
-            frontmatter_lines.append(f"{key}: {value}")
-    frontmatter_lines.append("---")
-    frontmatter = "\n".join(frontmatter_lines)
+    frontmatter = format_frontmatter(frontmatter_data)
 
     # Get transcript text
     transcript_text = get_transcript_text(entries)
@@ -439,36 +373,6 @@ def add_meeting_to_daily(
     daily_path.write_text(content)
     logger.info(f"Appended Meetings section with '{title}' to: {daily_path.name}")
     return True
-
-
-def get_unprocessed_transcripts(config: dict, older_than_hours: int = 48) -> list[Path]:
-    """Find transcript files that haven't been processed and are old enough."""
-    transcripts_dir = config["obsidian_vault"] / config["transcripts_folder"]
-
-    if not transcripts_dir.exists():
-        return []
-
-    cutoff = datetime.now() - timedelta(hours=older_than_hours)
-    unprocessed = []
-
-    for file_path in transcripts_dir.glob("*.md"):
-        content = file_path.read_text()
-
-        # Check frontmatter for processed: false
-        if "processed: false" not in content:
-            continue
-
-        # Check date in frontmatter
-        date_match = re.search(r"date: (\d{4}-\d{2}-\d{2})", content)
-        if date_match:
-            try:
-                file_date = datetime.strptime(date_match.group(1), "%Y-%m-%d")
-                if file_date < cutoff:
-                    unprocessed.append(file_path)
-            except ValueError:
-                continue
-
-    return unprocessed
 
 
 def sync_transcripts(config: dict) -> dict:

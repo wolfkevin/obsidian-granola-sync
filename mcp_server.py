@@ -6,7 +6,6 @@ Exposes Granola sync functionality as tools that Claude can use directly.
 """
 
 import json
-import logging
 from pathlib import Path
 from typing import Any
 
@@ -14,26 +13,18 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-# Import our existing sync functions
-from granola_sync import (
+from utils import (
+    setup_logging,
     load_config,
-    load_granola_cache,
-    generate_transcript_file,
-    add_meeting_to_daily,
-    get_meeting_date,
-    sync_transcripts,
-)
-from process_transcripts import (
     parse_frontmatter,
     get_unprocessed_transcripts,
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+from granola_sync import (
+    load_granola_cache,
+    sync_transcripts,
 )
-logger = logging.getLogger(__name__)
+
+logger = setup_logging(__name__)
 
 # Initialize the MCP server
 app = Server("granola-sync")

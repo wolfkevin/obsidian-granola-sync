@@ -15,9 +15,3 @@ projects_index: 1-projects/index.md
 # Processing settings
 auto_process_after_hours: 48
 model: claude-sonnet-4-20250514
-
-# Daily file template sections (used when creating new daily files)
-daily_template:
-  work_section: "## Work"
-  meetings_section: "## Meetings"
-  schedule_section: "## Schedule"
